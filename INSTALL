@@ -1,0 +1,13 @@
+HOWTO INSTALL YLOPONOM
+
+1. Download the yloponom release.
+
+2. Extract the archive.
+	tar -xjf yloponom-release.bz2
+
+3. Copy the files to a destination directory
+	mkdir -p /usr/local/games/yloponom
+	cp -aRv yloponom server data.dat bin /usr/local/games/yloponom
+
+4. Enjoy
+

@@ -1,0 +1,13 @@
+*~
+*.a
+base
+*.bk
+Makefile.deps
+*-moc.C
+*.o
+packet
+rand
+rules
+server
+*.swp
+yloponom

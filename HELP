@@ -1,0 +1,19 @@
+YLOPONOM USER GUIDE
+
+1. First start a server
+	./server [port] [ip]
+
+2. Connect any number of clients up to 8 to the server at [port] and [ip]
+	./yloponom
+
+3. Turn progression will indicate the current player's turn. If a player
+can buy a property, a message box will appear. 
+
+4. If the player loses, the game will close to indicate the loss.
+
+5. The last player remaining is the winner.
+
+6. During the turn, a player is free to trade or improve his properties.
+
+7. When done playing, be sure to CTRL+C the server process.
+

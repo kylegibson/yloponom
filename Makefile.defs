@@ -1,0 +1,18 @@
+# This file contains global defs
+
+CC = $(CXX)
+AR = ar
+
+GSTATIC = libylopy.a
+
+QTDIR = /usr/lib/qt-3.3
+
+ifeq (0, $(shell test -d "$(QTDIR)" || echo 0))
+QTDIR = /opt/qt
+endif
+
+QTLIB = -L$(QTDIR)/lib -lqt-mt
+QTINC = -I$(QTDIR)/include
+MOC = $(QTDIR)/bin/moc
+CXXFLAGS = -Wall 
+

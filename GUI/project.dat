@@ -1,0 +1,15 @@
+#!/bin/bash
+######################################################################
+# dat file for qt project
+######################################################################
+
+HEADERS=`cat << END
+BoardView.h DiceView.h ImproveDialog.h ServerConnect.h CasinoDialog.h 
+TradeDialog.h TradeRequestDialog.h Yloponom.h  Tokens.h InfoView.h PlayerStats.h Limbo.h
+`
+
+SOURCES=`cat << END
+BoardView.C DiceView.C ImproveDialog.C ServerConnect.C CasinoDialog.C 
+TradeDialog.C  TradeRequestDialog.C Yloponom.C  Tokens.C PlayerStats.C InfoView.C Limbo.C
+`
+

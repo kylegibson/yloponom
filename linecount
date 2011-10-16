@@ -1,0 +1,3 @@
+#!/bin/bash 
+echo Total number of lines, excluding blank lines and lines beginning with '//'
+find -name '*.[h|C]' | while read FILE; do cat $FILE | grep -v -e '^$' | grep -v -e '^//'; done | wc -l

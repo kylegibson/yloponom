@@ -1,0 +1,251 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// YLOPONOM
+//
+// CS3141 - Spring 2006
+// Group 7
+// Michael Hyde, Nick Quaderer, Will Pratt, Kyle Gibson
+//
+// GUI - This file contains the code for structuring the GUI for Yloponom
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "Yloponom.h"
+
+#include "Board.h"
+#include "BoardView.h"
+#include "Dice.h"
+#include "DiceView.h"
+//#include "Tokens.h"
+#include "InfoImage.h"
+#include "InfoView.h"
+#include "ServerConnect.h"
+#include "Limbo.h"
+#include "PlayerStats.h"
+
+#include "ImproveDialog.h"
+#include "TradeDialog.h"
+#include "CasinoDialog.h"
+#include "core/PlayerState.h"
+
+#include <qlayout.h>
+#include <qlabel.h>
+#include <qpushbutton.h>
+#include <qapplication.h>
+#include <qtimer.h>
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Yloponom class
+/////////////////////////////////////////////////////////////////////////////////////////////////
+Yloponom::Yloponom( QWidget *parent, const char *name ) 
+: QWidget( parent, name )
+{
+		player = new PlayerState("Joe", 450, 4);
+	// The initial display of the Yloponom interface is a connection window
+	// Then, when that window emits a switch signal, we switch to the limbo mode window
+	// then to the 
+
+	_serverConn = new ServerConnect( this, "_serverConn" );
+	setFixedSize( _serverConn->size() );
+
+	connect(_serverConn, SIGNAL(connected()), this, SLOT(connected_to_server()));
+
+	_main = new QWidget( this, "main");
+	_main->setFixedSize(870, 749);
+
+	QGridLayout * yloponomGrid = new QGridLayout(_main, 17, 6, -1, -1, "yloponomGrid");
+
+  	boardview = new BoardView(_main, "boardview");
+  	boardview->setBackgroundColor(lightGray);
+  	boardview->setFixedSize(672, 672);
+
+  	yloponomGrid->addMultiCellWidget(boardview, 0, 13, 1, 5, 0);
+
+	
+	
+
+
+//-----------------------------------------------------------------------------------------------
+//			Set image for space player occupies
+//-----------------------------------------------------------------------------------------------
+
+		props = new InfoView(_main, "props");
+		props->setFixedSize(200,260);
+		yloponomGrid->addWidget(props, 0, 0, 0);
+
+		connect(boardview, SIGNAL(board_clicked(int)), props, SLOT(display_deed(int)));
+
+		/*QLabel * owner = new QLabel(QString("<B>Owner: Player 5</B>"), _main, "owner", 0);
+		owner->setPaletteBackgroundColor(white);
+		owner->setAlignment(AlignCenter);
+		yloponomGrid->addWidget(owner, 1, 0, 0);*/
+
+//-----------------------------------------------------------------------------------------------
+//			Set player names on left side of screen
+//-----------------------------------------------------------------------------------------------
+
+		players = new PlayerStats(_main, "players");
+		players->setFixedSize(200, 205);
+		yloponomGrid->addWidget(players, 2, 0, 0);
+		players->setPlayer(0, player->get_name());
+		connect(players, SIGNAL(player_clicked(int)), this, SLOT(playerStats_clicked(int)));
+		connect(this, SIGNAL(displayPlayer(PlayerState *)), props, SLOT(display_player(PlayerState *)));
+
+//-----------------------------------------------------------------------------------------------
+//				Set turn status bar
+//-----------------------------------------------------------------------------------------------
+
+		QLabel * playerTurn = new QLabel(QString("......It is Player 3's turn......"), _main, "playerTurn", 0);
+		playerTurn->setFixedHeight(15);
+		playerTurn->setAlignment(AlignHCenter);
+		playerTurn->setPaletteBackgroundColor(gray);
+		yloponomGrid->addMultiCellWidget(playerTurn, 14, 14, 1, 5, 0);
+	
+		QLabel * turns = new QLabel(QString("Turns played:"), _main, "turns", 0);
+		//turns->setAlignment(AlignRight);
+		yloponomGrid->addWidget(turns, 16, 1, 0);
+	
+		QLabel * turnDisplay = new QLabel(QString("74"), _main, "turnDisplay", 0);
+		yloponomGrid->addWidget(turnDisplay, 16, 2, 0);
+
+//-----------------------------------------------------------------------------------------------
+//				timer!!!!
+//-----------------------------------------------------------------------------------------------
+
+		// the ACTUAL timer is created inside the start_game() slot
+
+		QLabel * time = new QLabel(QString("Seconds Elapsed:"), _main, "time", 0);
+		//time->setAlignment(AlignRight);
+		yloponomGrid->addWidget(time, 16, 3, 0);
+
+
+		timeDisplay = new QLabel("0", _main, "timeDisplay", 0);
+		yloponomGrid->addWidget(timeDisplay, 16, 4, 0);
+
+//-----------------------------------------------------------------------------------------------
+//				Set turn action buttons
+//-----------------------------------------------------------------------------------------------
+
+		QPushButton * concede = new QPushButton("CONCEDE", _main, "concede");
+		concede->setMinimumHeight(25);
+		concede->setPaletteForegroundColor(red);
+		connect(concede, SIGNAL(clicked()), qApp, SLOT(quit()));
+		yloponomGrid->addWidget(concede, 15, 1, 0);
+
+		QPushButton * trade = new QPushButton("Offer Trade", _main, "trade");
+		trade->setMinimumHeight(25);
+		//trade->setEnabled(false);
+		connect(trade, SIGNAL(clicked()), this, SLOT(tradeWindow()));
+		yloponomGrid->addWidget(trade, 15, 2, 0);
+
+		QPushButton * improve = new QPushButton("Build Improvements", _main, "improve");
+		improve->setMinimumHeight(25);
+		//improve->setEnabled(false);
+		connect(improve, SIGNAL(clicked()), this, SLOT(improveWindow()));
+		yloponomGrid->addWidget(improve, 15, 3, 0);
+
+		QPushButton * roll = new QPushButton("Roll Dice", _main, "roll");
+		roll->setMinimumHeight(25);
+		//roll->setEnabled(false);
+		//connect(roll, SIGNAL(clicked()), this, SLOT(rollDice()));
+		yloponomGrid->addWidget(roll, 15, 4, 0);
+
+//-----------------------------------------------------------------------------------------------
+// Set up dice window
+//-----------------------------------------------------------------------------------------------
+		diceRoll = new Dice(_main, "diceRoll");
+ 		diceview = new DiceView(_main, "diceview");
+
+  	diceview->setBackgroundColor(green);
+  	diceview->setFixedHeight(67);
+  	diceview->setFixedWidth(134);
+  	yloponomGrid->addMultiCellWidget(diceview, 15, 16, 5, 5, 0);
+
+	_main->setHidden(true);
+}
+
+void Yloponom::playerStats_clicked(int id)
+{
+		emit displayPlayer(player);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Method to bring up improvement dialog box when button is clicked
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void Yloponom::improveWindow()
+{
+		//CasinoDialog c (this,0);
+		//c.setFixedSize(420,335); **Keep for size of Casiono window"
+		//c.exec();
+
+		ImproveDialog improvements (this, 0);
+		improvements.setFixedSize(440,170);
+		improvements.exec();
+
+		//FreeParkingDialog fp (this,0);
+		//fp.setFixedSize(270,70); ***DO NOT REMOVE, this is the size we need for this window***
+		//fp.exec();
+		
+		
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Method to bring up trade dialog box when button is clicked
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void Yloponom::tradeWindow()
+{
+		TradeDialog tradeDialog (this, 0);
+		tradeDialog.setFixedSize(635, 695);
+		tradeDialog.exec();
+
+		//TransportDialog transportDialog (this, 0);
+		//transportDialog.setFixedSize(635, 695);
+		//transportDialog.exec();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Method to call on random number generator
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void Yloponom::rollDice()
+{
+		
+}
+
+void Yloponom::updateTime()
+{
+	QString t = timeDisplay->text();
+	int i = timeDisplay->text().toInt() + 1;
+	timeDisplay->setText(QString::number(i));
+	timeDisplay->repaint();
+
+	boardview->update_token(i%8, i%64);
+}
+
+
+// slot that changes the current display
+// from the Connect to the Limbo mode
+void Yloponom::connected_to_server()
+{
+	_serverConn->setHidden(true);
+
+	_limbo = new Limbo(this, "_limbo");
+	_limbo->setHidden(false);
+
+	connect(_serverConn, SIGNAL(i_am_first_player()), _limbo, SLOT(first_player()) );
+	connect(_limbo, SIGNAL(start_the_game_now()), this, SLOT(start_game()) );
+	connect(_limbo, SIGNAL(start_the_game_now()), _serverConn, SLOT(send_the_start_game_packet()) );
+
+	setFixedSize( _limbo->size() );
+}
+
+void Yloponom::start_game() 
+{
+	_limbo->setHidden(true);
+	_main->setHidden(false);
+
+	setFixedSize( _main->size() );
+
+	timer = new QTimer(this, "timer");
+	timer->start(1000);
+	connect(timer, SIGNAL(timeout()), this, SLOT(updateTime()));
+}
