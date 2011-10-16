@@ -9,6 +9,7 @@
 
 #include "network/types.h"
 #include <string>
+#include <algorithm>
 
 enum PSE_Jail { kFree, kFreshman, kSophie, kJunior, kSenior };
 

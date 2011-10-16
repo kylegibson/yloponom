@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <netinet/in.h>
+#include <cstring>
 
 namespace net {
 

@@ -16,6 +16,8 @@
 
 #include <list>
 
+#include <cstring>
+
 class Game_Base;
 
 namespace net {

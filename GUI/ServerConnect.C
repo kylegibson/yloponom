@@ -171,7 +171,7 @@ void ServerConnect::query_network()
 
 	try {
 		if(_client->has_data()) {
-			std::vector<int> args(10, 0);
+			std::vector<uintptr_t> args(10, 0);
 			
 			int act = _client->handle_packet(&args[0]);
 

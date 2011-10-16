@@ -9,6 +9,7 @@
 #define CLIENT_H
 
 #include <string>
+#include <stdint.h>
 
 #include "packet_decoder.h"
 
@@ -41,11 +42,11 @@ private:
 
 	void send_simple(int action);
 
-	void _handle_game_state(Decoder & dec, int *);
-	void _handle_roll_dice(Decoder & dec, int *);
-	void _handle_card(Decoder & dec, int *);
-	void _handle_trade(Decoder & dec, int *);
-	void _handle_action(Decoder & dec, int *);
+	void _handle_game_state(Decoder & dec, uintptr_t *);
+	void _handle_roll_dice(Decoder & dec, uintptr_t *);
+	void _handle_card(Decoder & dec, uintptr_t *);
+	void _handle_trade(Decoder & dec, uintptr_t*);
+	void _handle_action(Decoder & dec, uintptr_t*);
 
 public:
 	Client(const std::string &, const std::string &);
@@ -75,7 +76,7 @@ public:
 	bool has_data() const;
 	// determines whether the client has data available in buffer or to be read
 
-	int handle_packet(int *);
+	int handle_packet(uintptr_t *);
 	// handles an incoming packet
 
 	void start_game();

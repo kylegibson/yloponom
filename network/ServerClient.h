@@ -8,6 +8,7 @@
 #define SERVERCLIENT_H
 
 #include <string>
+#include "Server.h"
 
 class ServerClient
 {

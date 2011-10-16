@@ -10,6 +10,12 @@
 #include <string>
 #include <list>
 #include <csignal> 		// sig_atomic_t
+#include <sys/types.h>
+#include <stdlib.h>
+
+#ifndef BUFSIZ
+#define BUFSIZ 8096
+#endif
 
 // Server class is for hosting a Yloponom Server
 class GameLogicUnit;

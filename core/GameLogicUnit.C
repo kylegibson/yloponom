@@ -168,7 +168,7 @@ void GameLogicUnit::remove(ServerClient* client) // {{{
 
 GameLogicUnit::GLU_Player_List::iterator GameLogicUnit::_get_player_by_client(ServerClient* client) // {{{
 {
-	if(NULL == client) return NULL;
+	if(NULL == client) return _bad_iter();
 
 	GLU_Player_List::iterator i = this->_players.begin();
 

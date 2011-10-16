@@ -243,7 +243,7 @@ bool Client::has_data() const
 }
 
 
-int Client::handle_packet(int * params)
+int Client::handle_packet(uintptr_t * params)
 {
 	Decoder dec = getpacket();
 
@@ -295,14 +295,15 @@ int Client::handle_packet(int * params)
 	}
 }
 
-void Client::_handle_game_state(Decoder & dec, int * params)
+void Client::_handle_game_state(Decoder & dec, uintptr_t * params)
 {
 	delete _gstate;
 	_gstate = new GameState(&dec, _base);
-	*params = reinterpret_cast<int> (_gstate);
+	// *params = reinterpret_cast<int> (_gstate);
+	*params = reinterpret_cast<uintptr_t> (_gstate);
 }
 
-void Client::_handle_roll_dice(Decoder & dec, int * params)
+void Client::_handle_roll_dice(Decoder & dec, uintptr_t * params)
 {
 	Dice dice(&dec);
 	*(params++) = dice.get_state();
@@ -310,24 +311,24 @@ void Client::_handle_roll_dice(Decoder & dec, int * params)
 	*(params++) = dice.get_second_dice();
 }
 
-void Client::_handle_card(Decoder & dec, int * params)
+void Client::_handle_card(Decoder & dec, uintptr_t * params)
 {
 	Card card(&dec);
 	*params = card.get_card();
 }
 
-void Client::_handle_trade(Decoder & dec, int * params)
+void Client::_handle_trade(Decoder & dec, uintptr_t * params)
 {
 	delete _trade;
 	_trade = new Trade(&dec);
-	*params = reinterpret_cast<int>( _trade );
+	*params = reinterpret_cast<uintptr_t>( _trade );
 }
 
-void Client::_handle_action(Decoder & dec, int * params)
+void Client::_handle_action(Decoder & dec, uintptr_t * params)
 {
 	delete _actpack;
 	_actpack = new ActionPacket(&dec);
-	*params = reinterpret_cast<int>( _actpack );
+	*params = reinterpret_cast<uintptr_t>( _actpack );
 }
 
 

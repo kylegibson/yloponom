@@ -8,6 +8,7 @@
 
 
 #include <unistd.h>
+#include <cstdlib>
 
 //-------------------------------------------------------
 // Main method that reads and executes the program
